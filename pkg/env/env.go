@@ -8,6 +8,11 @@ import (
 	"strings"
 )
 
+const (
+	prefix string = "[ENC--"
+	suffix string = "--ENC]"
+)
+
 func ReadEnv(path string) map[string]string {
 	env := make(map[string]string)
 
@@ -21,9 +26,11 @@ func ReadEnv(path string) map[string]string {
 	fileScanner.Split(bufio.ScanLines)
 
 	for fileScanner.Scan() {
-		l := strings.Split(fileScanner.Text(), "=")
-		val := mergeStringValue(l)
-		env[l[0]] = val
+		if fileScanner.Text() != "" && strings.Contains(fileScanner.Text(), "=") {
+			l := strings.Split(fileScanner.Text(), "=")
+			val := mergeStringValue(l)
+			env[l[0]] = val
+		}
 	}
 
 	readFile.Close()
@@ -46,8 +53,8 @@ func SaveEnv(envs map[string]string, path string) {
 func EncodeEnv(envs map[string]string) map[string]string {
 	for key, value := range envs {
 		valueEnc := []byte(value)
-		if !strings.HasPrefix(value, "[ENC--") && !strings.HasSuffix(value, "--ENC]") {
-			envs[key] = "[ENC--" + string(cipher.Ecnrypt(valueEnc)) + "--ENC]"
+		if !strings.HasPrefix(value, prefix) && !strings.HasSuffix(value, suffix) {
+			envs[key] = prefix + string(cipher.Ecnrypt(valueEnc)) + suffix
 		}
 	}
 
@@ -56,9 +63,9 @@ func EncodeEnv(envs map[string]string) map[string]string {
 
 func DecodeEnv(envs map[string]string) map[string]string {
 	for key, value := range envs {
-		if strings.HasPrefix(value, "[ENC--") && strings.HasSuffix(value, "--ENC]") {
-			value = strings.Replace(value, "[ENC--", "", -1)
-			value = strings.Replace(value, "--ENC]", "", -1)
+		if strings.HasPrefix(value, prefix) && strings.HasSuffix(value, suffix) {
+			value = strings.Replace(value, prefix, "", -1)
+			value = strings.Replace(value, suffix, "", -1)
 			envs[key] = string(cipher.Decrypt(value))
 		}
 	}

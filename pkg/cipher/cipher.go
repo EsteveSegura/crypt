@@ -5,7 +5,8 @@ import (
 )
 
 // This is not encryption
-// Just encode o decode
+// just encode o decode
+// base64
 func Ecnrypt(data []byte) string {
 	ciphertext := b64.StdEncoding.EncodeToString([]byte(data))
 	return ciphertext
