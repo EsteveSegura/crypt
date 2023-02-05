@@ -54,7 +54,7 @@ func EncodeEnv(envs map[string]string) map[string]string {
 	for key, value := range envs {
 		valueEnc := []byte(value)
 		if !strings.HasPrefix(value, prefix) && !strings.HasSuffix(value, suffix) {
-			envs[key] = prefix + string(cipher.Ecnrypt(valueEnc)) + suffix
+			envs[key] = prefix + string(cipher.Ecnrypt([]byte("B3FFCA612CD0C3D9050A4DE3"), valueEnc)) + suffix
 		}
 	}
 
@@ -66,7 +66,7 @@ func DecodeEnv(envs map[string]string) map[string]string {
 		if strings.HasPrefix(value, prefix) && strings.HasSuffix(value, suffix) {
 			value = strings.Replace(value, prefix, "", -1)
 			value = strings.Replace(value, suffix, "", -1)
-			envs[key] = string(cipher.Decrypt(value))
+			envs[key] = string(cipher.Decrypt([]byte("B3FFCA612CD0C3D9050A4DE3"), value))
 		}
 	}
 
